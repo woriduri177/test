@@ -14,16 +14,24 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       min-height: 100vh;
       color: #222;
     }
-    h1 { font-size: 32px; margin-bottom: 10px; }
+    h1 { font-size: 32px; margin-bottom: 20px; }
 
-    /* 학생 수 / 모둠 수 입력칸 */
-    .setting { margin-bottom: 20px; font-size: 18px; }
+    /* 이름을 적는 칸 */
+    .name-box { width: 100%; max-width: 500px; margin-bottom: 20px; }
+    .name-box label { font-size: 18px; font-weight: bold; }
+    #nameList {
+      width: 100%; height: 120px; font-size: 16px; padding: 10px;
+      border: 2px solid #cbd5e1; border-radius: 8px; box-sizing: border-box;
+      margin-top: 8px; line-height: 1.6;
+    }
+
+    /* 모둠 수 고르는 칸 */
+    .setting { margin-bottom: 20px; font-size: 20px; }
     .setting input {
-      width: 60px; font-size: 18px; padding: 6px;
+      width: 70px; font-size: 20px; padding: 6px;
       text-align: center; border: 2px solid #cbd5e1; border-radius: 8px;
     }
 
@@ -37,24 +45,38 @@
 
     /* 결과가 보이는 칸 */
     #result {
-      margin-top: 30px; width: 100%; max-width: 700px;
+      margin-top: 30px; width: 100%; max-width: 800px;
       display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
     }
     .group-card {
       background-color: white; border: 2px solid #e2e8f0;
-      border-radius: 16px; padding: 16px 20px; min-width: 140px;
+      border-radius: 16px; padding: 16px 24px; min-width: 150px;
     }
-    .group-card h2 { font-size: 20px; margin: 0 0 10px 0; color: #2563eb; }
-    .group-card p { font-size: 18px; margin: 4px 0; }
+    .group-card h2 { font-size: 22px; margin: 0 0 10px 0; color: #2563eb; }
+    .group-card p { font-size: 18px; margin: 6px 0; }
   </style>
 </head>
 <body>
 
   <h1>우리 반 모둠 뽑기</h1>
 
+  <!-- 학생 이름을 적는 칸 (한 줄에 한 명씩) -->
+  <div class="name-box">
+    <label>학생 이름 (한 줄에 한 명씩 적어요)</label>
+    <textarea id="nameList">김하늘
+이바다
+박소리
+최햇살
+정구름
+한별
+오다솜
+유나래</textarea>
+  </div>
+
+  <!-- 모둠 수를 고르는 칸 -->
   <div class="setting">
-    학생 수 <input type="number" id="studentCount" value="24" min="1">명 /
-    모둠 수 <input type="number" id="groupCount" value="4" min="1">개
+    몇 개 모둠으로 나눌까요?
+    <input type="number" id="groupCount" value="2" min="1">개
   </div>
 
   <button id="drawButton" onclick="makeGroups()">모둠 나누기</button>
@@ -63,37 +85,53 @@
 
   <script>
     function makeGroups() {
-      // 1. 입력칸에 적힌 숫자를 가져옵니다.
-      var studentCount = Number(document.getElementById("studentCount").value);
-      var groupCount = Number(document.getElementById("groupCount").value);
+      // 1. 이름 칸에 적힌 내용을 줄 단위로 가져옵니다.
+      var text = document.getElementById("nameList").value;
+      var names = text.split("\n");
 
-      // 2. 1번부터 마지막 번호까지 학생 번호 목록을 만듭니다.
+      // 2. 빈 줄이나 앞뒤 공백은 정리해서 실제 이름만 남깁니다.
       var students = [];
-      for (var i = 1; i <= studentCount; i++) {
-        students.push(i);
+      for (var i = 0; i < names.length; i++) {
+        var name = names[i].trim();
+        if (name !== "") {
+          students.push(name);
+        }
       }
 
-      // 3. 번호를 무작위로 마구 섞습니다.
+      // 3. 모둠 수를 가져옵니다.
+      var groupCount = Number(document.getElementById("groupCount").value);
+
+      // 이름이 없거나 모둠 수가 잘못되면 알려줍니다.
+      if (students.length === 0) {
+        alert("학생 이름을 한 명 이상 적어주세요.");
+        return;
+      }
+      if (groupCount < 1) {
+        alert("모둠 수는 1개 이상이어야 해요.");
+        return;
+      }
+
+      // 4. 이름을 무작위로 마구 섞습니다.
       students.sort(function() { return Math.random() - 0.5; });
 
-      // 4. 빈 모둠 상자를 모둠 수만큼 만듭니다.
+      // 5. 빈 모둠 상자를 모둠 수만큼 만듭니다.
       var groups = [];
       for (var g = 0; g < groupCount; g++) {
         groups.push([]);
       }
 
-      // 5. 섞은 번호를 모둠에 하나씩 골고루 나눠 담습니다.
+      // 6. 섞은 이름을 모둠에 하나씩 골고루 나눠 담습니다.
       for (var j = 0; j < students.length; j++) {
         groups[j % groupCount].push(students[j]);
       }
 
-      // 6. 결과를 화면에 예쁘게 보여줍니다.
+      // 7. 결과를 화면에 예쁘게 보여줍니다.
       var result = document.getElementById("result");
       result.innerHTML = "";
       for (var k = 0; k < groups.length; k++) {
         var card = document.createElement("div");
         card.className = "group-card";
-        card.innerHTML = "<h2>" + (k + 1) + "모둠</h2><p>" + groups[k].join(", ") + "번</p>";
+        card.innerHTML = "<h2>" + (k + 1) + "모둠 (" + groups[k].length + "명)</h2><p>" + groups[k].join("<br>") + "</p>";
         result.appendChild(card);
       }
     }
