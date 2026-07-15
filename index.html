@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>우리 반 모둠 뽑기</title>
+  <style>
+    /* 화면 전체 모양 꾸미기 */
+    body {
+      font-family: "맑은 고딕", sans-serif;
+      background-color: #f4f6fb;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #222;
+    }
+    h1 { font-size: 32px; margin-bottom: 10px; }
+
+    /* 학생 수 / 모둠 수 입력칸 */
+    .setting { margin-bottom: 20px; font-size: 18px; }
+    .setting input {
+      width: 60px; font-size: 18px; padding: 6px;
+      text-align: center; border: 2px solid #cbd5e1; border-radius: 8px;
+    }
+
+    /* 가운데 큰 버튼 */
+    #drawButton {
+      font-size: 28px; font-weight: bold; color: white;
+      background-color: #2563eb; border: none; border-radius: 16px;
+      padding: 20px 50px; cursor: pointer;
+    }
+    #drawButton:hover { background-color: #1d4ed8; }
+
+    /* 결과가 보이는 칸 */
+    #result {
+      margin-top: 30px; width: 100%; max-width: 700px;
+      display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
+    }
+    .group-card {
+      background-color: white; border: 2px solid #e2e8f0;
+      border-radius: 16px; padding: 16px 20px; min-width: 140px;
+    }
+    .group-card h2 { font-size: 20px; margin: 0 0 10px 0; color: #2563eb; }
+    .group-card p { font-size: 18px; margin: 4px 0; }
+  </style>
+</head>
+<body>
+
+  <h1>우리 반 모둠 뽑기</h1>
+
+  <div class="setting">
+    학생 수 <input type="number" id="studentCount" value="24" min="1">명 /
+    모둠 수 <input type="number" id="groupCount" value="4" min="1">개
+  </div>
+
+  <button id="drawButton" onclick="makeGroups()">모둠 나누기</button>
+
+  <div id="result"></div>
+
+  <script>
+    function makeGroups() {
+      // 1. 입력칸에 적힌 숫자를 가져옵니다.
+      var studentCount = Number(document.getElementById("studentCount").value);
+      var groupCount = Number(document.getElementById("groupCount").value);
+
+      // 2. 1번부터 마지막 번호까지 학생 번호 목록을 만듭니다.
+      var students = [];
+      for (var i = 1; i <= studentCount; i++) {
+        students.push(i);
+      }
+
+      // 3. 번호를 무작위로 마구 섞습니다.
+      students.sort(function() { return Math.random() - 0.5; });
+
+      // 4. 빈 모둠 상자를 모둠 수만큼 만듭니다.
+      var groups = [];
+      for (var g = 0; g < groupCount; g++) {
+        groups.push([]);
+      }
+
+      // 5. 섞은 번호를 모둠에 하나씩 골고루 나눠 담습니다.
+      for (var j = 0; j < students.length; j++) {
+        groups[j % groupCount].push(students[j]);
+      }
+
+      // 6. 결과를 화면에 예쁘게 보여줍니다.
+      var result = document.getElementById("result");
+      result.innerHTML = "";
+      for (var k = 0; k < groups.length; k++) {
+        var card = document.createElement("div");
+        card.className = "group-card";
+        card.innerHTML = "<h2>" + (k + 1) + "모둠</h2><p>" + groups[k].join(", ") + "번</p>";
+        result.appendChild(card);
+      }
+    }
+  </script>
+
+</body>
+</html>
