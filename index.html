@@ -45,15 +45,14 @@
 
     /* 결과가 보이는 칸 */
     #result {
-      margin-top: 30px; width: 100%; max-width: 800px;
-      display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
+      margin-top: 30px; width: 100%; max-width: 600px;
     }
-    .group-card {
+    .group-line {
       background-color: white; border: 2px solid #e2e8f0;
-      border-radius: 16px; padding: 16px 24px; min-width: 150px;
+      border-radius: 12px; padding: 14px 20px; margin-bottom: 12px;
+      font-size: 20px; line-height: 1.5;
     }
-    .group-card h2 { font-size: 22px; margin: 0 0 10px 0; color: #2563eb; }
-    .group-card p { font-size: 18px; margin: 6px 0; }
+    .group-line b { color: #2563eb; }
   </style>
 </head>
 <body>
@@ -98,44 +97,4 @@
         }
       }
 
-      // 3. 모둠 수를 가져옵니다.
-      var groupCount = Number(document.getElementById("groupCount").value);
-
-      // 이름이 없거나 모둠 수가 잘못되면 알려줍니다.
-      if (students.length === 0) {
-        alert("학생 이름을 한 명 이상 적어주세요.");
-        return;
-      }
-      if (groupCount < 1) {
-        alert("모둠 수는 1개 이상이어야 해요.");
-        return;
-      }
-
-      // 4. 이름을 무작위로 마구 섞습니다.
-      students.sort(function() { return Math.random() - 0.5; });
-
-      // 5. 빈 모둠 상자를 모둠 수만큼 만듭니다.
-      var groups = [];
-      for (var g = 0; g < groupCount; g++) {
-        groups.push([]);
-      }
-
-      // 6. 섞은 이름을 모둠에 하나씩 골고루 나눠 담습니다.
-      for (var j = 0; j < students.length; j++) {
-        groups[j % groupCount].push(students[j]);
-      }
-
-      // 7. 결과를 화면에 예쁘게 보여줍니다.
-      var result = document.getElementById("result");
-      result.innerHTML = "";
-      for (var k = 0; k < groups.length; k++) {
-        var card = document.createElement("div");
-        card.className = "group-card";
-        card.innerHTML = "<h2>" + (k + 1) + "모둠 (" + groups[k].length + "명)</h2><p>" + groups[k].join("<br>") + "</p>";
-        result.appendChild(card);
-      }
-    }
-  </script>
-
-</body>
-</html>
+      // 3. 모둠 수를 가져옵니다
