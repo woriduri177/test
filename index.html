@@ -141,4 +141,68 @@
         return;
       }
 
-      // 이전
+      // 이전 결과는 지우고, 버튼은 잠시 못 누르게 막습니다.
+      var result = document.getElementById("result");
+      var shuffleBox = document.getElementById("shuffleBox");
+      var button = document.getElementById("drawButton");
+      result.innerHTML = "";
+      button.disabled = true;
+
+      // === 1단계: 이름이 빠르게 바뀌며 섞이는 애니메이션 (약 1.5초) ===
+      var shuffleTimes = 15;   // 이름이 몇 번 바뀔지
+      var count = 0;
+      var shuffleTimer = setInterval(function() {
+        // 이름 중 하나를 무작위로 골라 큰 글씨로 보여줍니다.
+        var pick = students[Math.floor(Math.random() * students.length)];
+        shuffleBox.textContent = "🎲 " + pick + " 🎲";
+        count++;
+
+        if (count >= shuffleTimes) {
+          clearInterval(shuffleTimer);      // 섞기 멈춤
+          shuffleBox.textContent = "";      // 큰 글씨칸 비우기
+          revealGroups(students, groupCount, result);  // 2단계로 넘어감
+        }
+      }, 100);  // 0.1초마다 이름 바꾸기 (15번 = 약 1.5초)
+
+      // === 2단계: 진짜로 모둠을 나눠 카드로 하나씩 보여주기 ===
+      function revealGroups(students, groupCount, result) {
+        // 이름을 무작위로 섞습니다. (피셔-예이츠 방식)
+        for (var s = students.length - 1; s > 0; s--) {
+          var r = Math.floor(Math.random() * (s + 1));
+          var temp = students[s];
+          students[s] = students[r];
+          students[r] = temp;
+        }
+
+        // 빈 모둠 상자를 만들고 골고루 나눠 담습니다.
+        var groups = [];
+        for (var g = 0; g < groupCount; g++) { groups.push([]); }
+        for (var j = 0; j < students.length; j++) {
+          groups[j % groupCount].push(students[j]);
+        }
+
+        // 카드를 0.4초 간격으로 하나씩 나타나게 합니다.
+        var k = 0;
+        var revealTimer = setInterval(function() {
+          var theme = themes[k % themes.length];
+          var card = document.createElement("div");
+          card.className = "group-card";
+          card.style.backgroundColor = theme.color;
+          card.innerHTML =
+            "<div class='emoji'>" + theme.emoji + "</div>" +
+            "<h2>" + theme.name + " (" + groups[k].length + "명)</h2>" +
+            "<p>" + groups[k].join("<br>") + "</p>";
+          result.appendChild(card);
+
+          k++;
+          if (k >= groups.length) {
+            clearInterval(revealTimer);   // 카드를 다 보여주면 멈춤
+            button.disabled = false;      // 버튼 다시 누를 수 있게
+          }
+        }, 400);  // 0.4초마다 카드 한 장씩
+      }
+    }
+  </script>
+
+</body>
+</html>
