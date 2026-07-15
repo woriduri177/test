@@ -97,4 +97,50 @@
         }
       }
 
-      // 3. 모둠 수를 가져옵니다
+      // 3. 모둠 수를 가져옵니다.
+      var groupCount = Number(document.getElementById("groupCount").value);
+
+      // 이름이 없거나 모둠 수가 잘못되면 알려줍니다.
+      if (students.length === 0) {
+        alert("학생 이름을 한 명 이상 적어주세요.");
+        return;
+      }
+      if (groupCount < 1) {
+        alert("모둠 수는 1개 이상이어야 해요.");
+        return;
+      }
+
+      // 4. 이름을 무작위로 마구 섞습니다. (피셔-예이츠 방식: 더 골고루 섞임)
+      for (var s = students.length - 1; s > 0; s--) {
+        var r = Math.floor(Math.random() * (s + 1));
+        var temp = students[s];
+        students[s] = students[r];
+        students[r] = temp;
+      }
+
+      // 5. 빈 모둠 상자를 모둠 수만큼 만듭니다.
+      var groups = [];
+      for (var g = 0; g < groupCount; g++) {
+        groups.push([]);
+      }
+
+      // 6. 섞은 이름을 1모둠, 2모둠, 3모둠... 순서로 돌아가며 한 명씩 나눠 담습니다.
+      //    이렇게 하면 인원이 딱 안 나눠져도 최대 1명 차이로 골고루 나뉩니다.
+      for (var j = 0; j < students.length; j++) {
+        groups[j % groupCount].push(students[j]);
+      }
+
+      // 7. 결과를 '1모둠: 이름, 이름' 형태로 한 줄씩 보여줍니다.
+      var result = document.getElementById("result");
+      result.innerHTML = "";
+      for (var k = 0; k < groups.length; k++) {
+        var line = document.createElement("div");
+        line.className = "group-line";
+        line.innerHTML = "<b>" + (k + 1) + "모둠 (" + groups[k].length + "명):</b> " + groups[k].join(", ");
+        result.appendChild(line);
+      }
+    }
+  </script>
+
+</body>
+</html>
