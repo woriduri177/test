@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>우리 반 모둠 뽑기</title>
   <style>
-    /* 화면 전체 모양 꾸미기 - 밝고 화사한 배경 */
     body {
       font-family: "맑은 고딕", sans-serif;
       background-color: #fff9e6;
@@ -27,8 +26,6 @@
       color: #ff5b5b;
       text-shadow: 2px 2px 0 #fff;
     }
-
-    /* 이름을 적는 칸 */
     .name-box { width: 100%; max-width: 520px; margin-bottom: 20px; }
     .name-box label { font-size: 20px; font-weight: bold; color: #555; }
     #nameList {
@@ -36,15 +33,11 @@
       border: 3px solid #ffd166; border-radius: 16px; box-sizing: border-box;
       margin-top: 8px; line-height: 1.6; background-color: #fffdf5;
     }
-
-    /* 모둠 수 고르는 칸 */
     .setting { margin-bottom: 24px; font-size: 24px; font-weight: bold; color: #555; }
     .setting input {
       width: 80px; font-size: 24px; padding: 8px;
       text-align: center; border: 3px solid #ffd166; border-radius: 12px;
     }
-
-    /* 가운데 큰 버튼 */
     #drawButton {
       font-size: 34px; font-weight: bold; color: white;
       background-color: #ff5b5b; border: none; border-radius: 24px;
@@ -54,16 +47,29 @@
     }
     #drawButton:hover { background-color: #ff4040; }
     #drawButton:active { transform: translateY(4px); box-shadow: 0 2px 0 #d63d3d; }
+    #drawButton:disabled { background-color: #ffb0b0; box-shadow: 0 6px 0 #e59a9a; cursor: default; }
 
-    /* 결과가 보이는 칸 */
+    /* 이름이 섞이는 동안 보여줄 큰 글씨칸 */
+    #shuffleBox {
+      margin-top: 36px; font-size: 60px; font-weight: bold;
+      color: #ff5b5b; min-height: 80px; text-shadow: 2px 2px 0 #fff;
+    }
+
     #result {
-      margin-top: 36px; width: 100%; max-width: 900px;
+      margin-top: 20px; width: 100%; max-width: 900px;
       display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
     }
     .group-card {
       border-radius: 24px; padding: 20px 28px; min-width: 180px;
       color: white; text-align: center;
       box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+      /* 처음엔 작고 투명하게 숨어 있다가 '통!' 하고 나타납니다 */
+      animation: popIn 0.5s ease-out;
+    }
+    @keyframes popIn {
+      0%   { transform: scale(0.3); opacity: 0; }
+      70%  { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1);   opacity: 1; }
     }
     .group-card .emoji { font-size: 54px; }
     .group-card h2 { font-size: 26px; margin: 8px 0 12px 0; }
@@ -74,7 +80,6 @@
 
   <h1>🎉 우리 반 모둠 뽑기 🎉</h1>
 
-  <!-- 학생 이름을 적는 칸 (한 줄에 한 명씩) -->
   <div class="name-box">
     <label>학생 이름 (한 줄에 한 명씩 적어요)</label>
     <textarea id="nameList">김하늘
@@ -87,7 +92,6 @@
 유나래</textarea>
   </div>
 
-  <!-- 모둠 수를 고르는 칸 -->
   <div class="setting">
     몇 개 모둠으로 나눌까요?
     <input type="number" id="groupCount" value="2" min="1">개
@@ -95,10 +99,12 @@
 
   <button id="drawButton" onclick="makeGroups()">모둠 나누기!</button>
 
+  <!-- 이름이 섞이는 모습을 보여주는 칸 -->
+  <div id="shuffleBox"></div>
+
   <div id="result"></div>
 
   <script>
-    // 모둠마다 쓸 동물 이모지 + 이름 + 색깔을 미리 정해둡니다.
     var themes = [
       { emoji: "🦁", name: "사자모둠",   color: "#ff8c42" },
       { emoji: "🐯", name: "호랑이모둠", color: "#ffb703" },
@@ -113,11 +119,9 @@
     ];
 
     function makeGroups() {
-      // 1. 이름 칸에 적힌 내용을 줄 단위로 가져옵니다.
       var text = document.getElementById("nameList").value;
       var names = text.split("\n");
 
-      // 2. 빈 줄이나 앞뒤 공백은 정리해서 실제 이름만 남깁니다.
       var students = [];
       for (var i = 0; i < names.length; i++) {
         var name = names[i].trim();
@@ -126,10 +130,8 @@
         }
       }
 
-      // 3. 모둠 수를 가져옵니다.
       var groupCount = Number(document.getElementById("groupCount").value);
 
-      // 이름이 없거나 모둠 수가 잘못되면 알려줍니다.
       if (students.length === 0) {
         alert("학생 이름을 한 명 이상 적어주세요.");
         return;
@@ -139,43 +141,4 @@
         return;
       }
 
-      // 4. 이름을 무작위로 마구 섞습니다. (피셔-예이츠 방식)
-      for (var s = students.length - 1; s > 0; s--) {
-        var r = Math.floor(Math.random() * (s + 1));
-        var temp = students[s];
-        students[s] = students[r];
-        students[r] = temp;
-      }
-
-      // 5. 빈 모둠 상자를 모둠 수만큼 만듭니다.
-      var groups = [];
-      for (var g = 0; g < groupCount; g++) {
-        groups.push([]);
-      }
-
-      // 6. 섞은 이름을 1모둠, 2모둠... 순서로 돌아가며 한 명씩 골고루 나눠 담습니다.
-      for (var j = 0; j < students.length; j++) {
-        groups[j % groupCount].push(students[j]);
-      }
-
-      // 7. 결과를 색깔 카드 + 동물 이모지로 예쁘게 보여줍니다.
-      var result = document.getElementById("result");
-      result.innerHTML = "";
-      for (var k = 0; k < groups.length; k++) {
-        // 정해둔 테마가 모자라면 다시 처음 것부터 돌려씁니다.
-        var theme = themes[k % themes.length];
-
-        var card = document.createElement("div");
-        card.className = "group-card";
-        card.style.backgroundColor = theme.color;
-        card.innerHTML =
-          "<div class='emoji'>" + theme.emoji + "</div>" +
-          "<h2>" + theme.name + " (" + groups[k].length + "명)</h2>" +
-          "<p>" + groups[k].join("<br>") + "</p>";
-        result.appendChild(card);
-      }
-    }
-  </script>
-
-</body>
-</html>
+      // 이전
